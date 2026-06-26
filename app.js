@@ -1,15 +1,13 @@
 function addProduct() {
-  const name = "test";
-  const price = "123";
+  const name = document.getElementById("name").value;
+  const price = document.getElementById("price").value;
+  const category = document.getElementById("category").value;
 
   window.db.collection("products").add({
     name,
-    price
-  })
-  .then(() => {
-    alert("СОХРАНЕНО В FIREBASE");
-  })
-  .catch((err) => {
-    alert("FIREBASE ERROR: " + err.message);
+    price,
+    category
+  }).then(() => {
+    alert("Добавлено");
   });
 }
