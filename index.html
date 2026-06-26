@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marks Store</title>
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial;
+  background: #0f1115;
+  color: white;
+}
+
+.header {
+  padding: 16px;
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.categories {
+  display: flex;
+  overflow-x: auto;
+  gap: 10px;
+  padding: 10px;
+}
+
+.cat {
+  background: #1c1f26;
+  padding: 8px 12px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+
+.container {
+  padding: 10px;
+}
+
+.card {
+  background: #1a1d24;
+  padding: 15px;
+  margin-bottom: 10px;
+  border-radius: 12px;
+}
+
+.price {
+  color: #8aa0b6;
+  margin-top: 5px;
+}
+
+button {
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px;
+  border: none;
+  border-radius: 10px;
+  background: #3a6ff7;
+  color: white;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="header">🛍 Marks Store</div>
+
+<div class="categories">
+  <div class="cat">📱 Электроника</div>
+  <div class="cat">👕 Одежда</div>
+  <div class="cat">👟 Обувь</div>
+  <div class="cat">🎮 Игры</div>
+  <div class="cat">💾 Цифровые</div>
+</div>
+
+<div class="container">
+
+  <div class="card">
+    iPhone 15 Pro
+    <div class="price">120 000 ₽</div>
+    <button>В корзину</button>
+  </div>
+
+  <div class="card">
+    Nike Air Force
+    <div class="price">12 000 ₽</div>
+    <button>В корзину</button>
+  </div>
+
+  <div class="card">
+    Steam Gift Card
+    <div class="price">5 000 ₽</div>
+    <button>В корзину</button>
+  </div>
+
+</div>
+
+</body>
+</html>
