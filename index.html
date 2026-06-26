@@ -1,102 +1,156 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Marks Store</title>
+  <meta charset="UTF-8">
+  <title>Marks Store</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial;
+      background: #f5f5f5;
+    }
 
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
+    header {
+      background: #111;
+      color: white;
+      padding: 15px;
+      text-align: center;
+      font-size: 20px;
+    }
 
-<style>
-body {
-  margin: 0;
-  font-family: Arial;
-  background: #0f1115;
-  color: white;
-}
+    .categories {
+      display: flex;
+      gap: 10px;
+      padding: 10px;
+      overflow-x: auto;
+      background: white;
+    }
 
-.header {
-  padding: 16px;
-  font-size: 22px;
-  font-weight: bold;
-}
+    .cat {
+      padding: 8px 12px;
+      background: #eee;
+      border-radius: 20px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
 
-.categories {
-  display: flex;
-  overflow-x: auto;
-  gap: 10px;
-  padding: 10px;
-}
+    .cat.active {
+      background: black;
+      color: white;
+    }
 
-.cat {
-  background: #1c1f26;
-  padding: 8px 12px;
-  border-radius: 10px;
-  white-space: nowrap;
-}
+    .products {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      padding: 10px;
+    }
 
-.container {
-  padding: 10px;
-}
+    .card {
+      background: white;
+      padding: 10px;
+      border-radius: 10px;
+    }
 
-.card {
-  background: #1a1d24;
-  padding: 15px;
-  margin-bottom: 10px;
-  border-radius: 12px;
-}
+    .price {
+      font-weight: bold;
+    }
 
-.price {
-  color: #8aa0b6;
-  margin-top: 5px;
-}
+    .admin {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      background: black;
+      color: white;
+      padding: 10px;
+      border-radius: 50%;
+      cursor: pointer;
+    }
 
-button {
-  width: 100%;
-  margin-top: 10px;
-  padding: 10px;
-  border: none;
-  border-radius: 10px;
-  background: #3a6ff7;
-  color: white;
-}
-</style>
+    .panel {
+      display: none;
+      position: fixed;
+      bottom: 60px;
+      right: 10px;
+      background: white;
+      padding: 10px;
+      border: 1px solid #ccc;
+      width: 200px;
+    }
 
+    input {
+      width: 100%;
+      margin-bottom: 5px;
+    }
+  </style>
 </head>
 
 <body>
 
-<div class="header">🛍 Marks Store</div>
+<header>🛍 Marks Store</header>
 
 <div class="categories">
-  <div class="cat">📱 Электроника</div>
-  <div class="cat">👕 Одежда</div>
-  <div class="cat">👟 Обувь</div>
-  <div class="cat">🎮 Игры</div>
-  <div class="cat">💾 Цифровые</div>
+  <div class="cat active" onclick="filter('all')">Все</div>
+  <div class="cat" onclick="filter('clothes')">Одежда</div>
+  <div class="cat" onclick="filter('shoes')">Обувь</div>
 </div>
 
-<div class="container">
+<div class="products" id="products"></div>
 
-  <div class="card">
-    iPhone 15 Pro
-    <div class="price">120 000 ₽</div>
-    <button>В корзину</button>
-  </div>
+<div class="admin" onclick="togglePanel()">+</div>
 
-  <div class="card">
-    Nike Air Force
-    <div class="price">12 000 ₽</div>
-    <button>В корзину</button>
-  </div>
-
-  <div class="card">
-    Steam Gift Card
-    <div class="price">5 000 ₽</div>
-    <button>В корзину</button>
-  </div>
-
+<div class="panel" id="panel">
+  <input id="name" placeholder="Название">
+  <input id="price" placeholder="Цена">
+  <input id="category" placeholder="Категория">
+  <button onclick="addProduct()">Добавить</button>
 </div>
+
+<script>
+let products = [];
+
+function render(list) {
+  const box = document.getElementById("products");
+  box.innerHTML = "";
+  list.forEach(p => {
+    box.innerHTML += `
+      <div class="card">
+        <div>${p.name}</div>
+        <div class="price">${p.price} ₽</div>
+        <small>${p.category}</small>
+      </div>
+    `;
+  });
+}
+
+function addProduct() {
+  const name = document.getElementById("name").value;
+  const price = document.getElementById("price").value;
+  const category = document.getElementById("category").value;
+
+  products.push({ name, price, category });
+  render(products);
+
+  document.getElementById("name").value = "";
+  document.getElementById("price").value = "";
+  document.getElementById("category").value = "";
+}
+
+function filter(cat) {
+  document.querySelectorAll(".cat").forEach(c => c.classList.remove("active"));
+  event.target.classList.add("active");
+
+  if (cat === "all") render(products);
+  else render(products.filter(p => p.category === cat));
+}
+
+function togglePanel() {
+  const panel = document.getElementById("panel");
+  panel.style.display = panel.style.display === "block" ? "none" : "block";
+}
+
+render(products);
+</script>
 
 </body>
 </html>
