@@ -15,7 +15,15 @@ async function loadProducts() {
 }
 
 // добавление товара в Firebase
-async function addProduct() {
+function addProduct() {
+  console.log("КНОПКА РАБОТАЕТ");
+
+  const name = document.getElementById("name").value;
+  const price = document.getElementById("price").value;
+  const category = document.getElementById("category").value;
+
+  console.log(name, price, category);
+}
   const name = document.getElementById("name").value;
   const price = document.getElementById("price").value;
   const category = document.getElementById("category").value;
