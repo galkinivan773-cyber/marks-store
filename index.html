@@ -1,1 +1,186 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Мини Маркет</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: var(--tg-theme-bg-color, #f0f0f0);
+            color: var(--tg-theme-text-color, #000);
+        }
+        .header {
+            padding: 16px;
+            text-align: center;
+            background: var(--tg-theme-secondary-bg-color, #ffffff);
+            border-bottom: 1px solid #ddd;
+        }
+        .tab {
+            padding: 12px;
+            font-size: 16px;
+        }
+        .product {
+            background: var(--tg-theme-bg-color, #fff);
+            margin: 12px;
+            padding: 12px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        img {
+            width: 100%;
+            border-radius: 8px;
+        }
+        .admin-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #4CAF50;
+            color: white;
+            padding: 14px 18px;
+            border-radius: 50%;
+            font-size: 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 100;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🛒 Мини Маркет</h1>
+        <div id="tabs">
+            <button class="tab" onclick="showTab(0)">Каталог</button>
+            <button class="tab" onclick="showTab(1)" id="admin-tab" style="display:none;">Админка</button>
+        </div>
+    </div>
 
+    <div id="catalog" class="tab-content">
+        <div id="products-list"></div>
+    </div>
+
+    <div id="admin-panel" class="tab-content" style="display:none;">
+        <h2>Добавить товар</h2>
+        <input type="text" id="name" placeholder="Название товара" style="width:100%; padding:10px; margin:8px 0;">
+        <input type="number" id="price" placeholder="Цена" style="width:100%; padding:10px; margin:8px 0;">
+        <textarea id="desc" placeholder="Описание" style="width:100%; padding:10px; margin:8px 0; height:80px;"></textarea>
+        <input type="text" id="image" placeholder="Ссылка на фото" style="width:100%; padding:10px; margin:8px 0;">
+        <button onclick="addProduct()" style="width:100%; padding:14px; background:#4CAF50; color:white; border:none; border-radius:8px;">Добавить товар</button>
+        
+        <h3>Существующие товары</h3>
+        <div id="admin-products"></div>
+    </div>
+
+    <button class="admin-btn" onclick="toggleAdmin()">⚙️</button>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+        tg.expand();
+
+        let products = [];
+        const ADMIN_ID = tg.initDataUnsafe?.user?.id; // Замени на свой ID если нужно
+
+        async function loadProducts() {
+            try {
+                const res = await fetch('products.json');
+                const data = await res.json();
+                products = data.products || [];
+                renderCatalog();
+                renderAdminProducts();
+            } catch(e) {
+                console.error("Ошибка загрузки", e);
+            }
+        }
+
+        function renderCatalog() {
+            const container = document.getElementById('products-list');
+            container.innerHTML = products.map(p => `
+                <div class="product">
+                    <img src="${p.image_url}" onerror="this.src='https://via.placeholder.com/300?text=Нет+фото'">
+                    <h3>${p.name}</h3>
+                    <p><strong>${p.price} ₽</strong></p>
+                    <p>${p.description || ''}</p>
+                    <button onclick="contactSeller('${p.name}')">Купить / Написать</button>
+                </div>
+            `).join('');
+        }
+
+        function renderAdminProducts() {
+            const container = document.getElementById('admin-products');
+            container.innerHTML = products.map((p, i) => `
+                <div class="product">
+                    <strong>${p.name}</strong> — ${p.price} ₽
+                    <button onclick="deleteProduct(${i})">Удалить</button>
+                </div>
+            `).join('');
+        }
+
+        function addProduct() {
+            const name = document.getElementById('name').value;
+            const price = parseFloat(document.getElementById('price').value);
+            const desc = document.getElementById('desc').value;
+            const image = document.getElementById('image').value || 'https://via.placeholder.com/300';
+
+            if (!name || !price) {
+                tg.showAlert("Заполните название и цену!");
+                return;
+            }
+
+            products.push({
+                id: Date.now(),
+                name,
+                price,
+                description: desc,
+                image_url: image
+            });
+
+            saveProducts();
+            tg.showAlert("Товар добавлен!");
+            
+            // Очистка формы
+            document.getElementById('name').value = '';
+            document.getElementById('price').value = '';
+            document.getElementById('desc').value = '';
+        }
+
+        async function saveProducts() {
+            // Для GitHub это не сохранит автоматически. Нужно будет вручную обновлять products.json пока
+            renderCatalog();
+            renderAdminProducts();
+            tg.showAlert("Товар добавлен в память. Обнови products.json вручную для сохранения.");
+        }
+
+        function deleteProduct(index) {
+            if (confirm("Удалить товар?")) {
+                products.splice(index, 1);
+                renderCatalog();
+                renderAdminProducts();
+            }
+        }
+
+        function contactSeller(productName) {
+            tg.openTelegramLink(`https://t.me/${tg.initDataUnsafe.user.username ? tg.initDataUnsafe.user.username : 'твой_юзер'}`);
+            // Или просто alert
+            tg.showAlert(`Напишите мне по поводу "${productName}"`);
+        }
+
+        function toggleAdmin() {
+            const adminPanel = document.getElementById('admin-panel');
+            const adminTab = document.getElementById('admin-tab');
+            adminPanel.style.display = adminPanel.style.display === 'none' ? 'block' : 'none';
+            adminTab.style.display = 'inline-block';
+        }
+
+        function showTab(n) {
+            document.getElementById('catalog').style.display = n === 0 ? 'block' : 'none';
+            document.getElementById('admin-panel').style.display = n === 1 ? 'block' : 'none';
+        }
+
+        // Запуск
+        loadProducts();
+    </script>
+</body>
+</html>
